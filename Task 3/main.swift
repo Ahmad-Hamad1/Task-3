@@ -10,6 +10,8 @@ enum CollectionErrors: Error {
     case emptyStack
     case fullStack
     case indexNotFound
+    case fullQueue
+    case emptyQueue
 }
 
 class Node: Comparable{
@@ -65,6 +67,34 @@ class Stack<T:Comparable> {
     }
 }
 
+class Queue<T> {
+    var queue: [T] = []
+    var maxCapacity = -1
+    func add(_ element: T) throws {
+        if(queue.count == maxCapacity) {
+            throw CollectionErrors.fullQueue
+        }
+        queue.append(element)
+    }
+    func remove() throws -> T {
+        if (queue.count == 0) {
+            throw CollectionErrors.emptyQueue
+        }
+        let ret = queue.first
+        queue.removeFirst()
+        return ret!
+    }
+    func peek() throws -> T {
+        if (queue.count == 0) {
+            throw CollectionErrors.emptyQueue
+        }
+        return queue.first!
+    }
+    func isEmpty() -> Bool {
+        return queue.isEmpty
+    }
+}
+
 
 print("Stack test: ")
 var stack = Stack<Node>()
@@ -82,6 +112,26 @@ do {
     print("The stack is empty")
 } catch CollectionErrors.fullStack {
     print("The stack is full")
+} catch CollectionErrors.indexNotFound {
+    print("Index not found")
+}
+
+print("Queue test: ")
+var queue = Queue<Node>()
+do {
+    try queue.add(Node("aa"))
+    try queue.add(Node("bb"))
+    try queue.add(Node("cc"))
+    try queue.add(Node("dd"))
+    print(try queue.peek().getDesc())
+    print(try queue.remove().getDesc())
+    try queue.add(Node("ee"))
+    print(try queue.remove().getDesc())
+    print(queue.isEmpty())
+} catch CollectionErrors.emptyQueue {
+    print("The queue is empty")
+} catch CollectionErrors.fullQueue {
+    print("The queue is full")
 } catch CollectionErrors.indexNotFound {
     print("Index not found")
 }
