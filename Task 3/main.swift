@@ -95,6 +95,38 @@ class Queue<T> {
     }
 }
 
+extension Stack {
+    convenience init(_ maxCapacity: Int) {
+        self.init()
+        self.maxCapacity = maxCapacity
+    }
+    
+    func insertAt(_ element: T, _ idx: Int) throws {
+        if(idx >= self.stack.count) {
+            throw CollectionErrors.indexNotFound
+        }
+        self.stack.insert(element, at: idx)
+    }
+    
+    func removeAt(_ idx: Int) throws {
+        if(!stack.indices.contains(idx)) {
+            throw CollectionErrors.indexNotFound
+        }
+        self.stack.remove(at: idx)
+    }
+    
+    func sortStack() {
+        self.stack.sort(by: <)
+    }
+    
+    func resize(_ newSize: Int) {
+        self.maxCapacity = newSize
+    }
+    
+    func removeDuplicates() {
+        self.stack = NSOrderedSet(array: self.stack).map({ $0 as! T })
+    }
+}
 
 print("Stack test: ")
 var stack = Stack<Node>()
@@ -108,6 +140,10 @@ do {
     try stack.push(Node("ee"))
     print(try stack.pop().getDesc())
     print(stack.isEmpty())
+    try stack.insertAt(Node("ff"), 2)
+    try stack.removeAt(2)
+    stack.sortStack()
+    stack.removeDuplicates()
 } catch CollectionErrors.emptyStack {
     print("The stack is empty")
 } catch CollectionErrors.fullStack {
