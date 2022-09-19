@@ -14,22 +14,23 @@ enum CollectionErrors: Error {
     case emptyQueue
 }
 
-class Node: Comparable{
+class Node: Comparable & Hashable {
     static func < (lhs: Node, rhs: Node) -> Bool {
-        return lhs.id < rhs.id
+        return lhs.desc < rhs.desc
     }
     
     static func == (lhs: Node, rhs: Node) -> Bool {
-        return lhs.id == rhs.id
+        return lhs.desc == rhs.desc
     }
     
-    static var arr = Array(1...100)
-    var id: Int
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(desc)
+    }
+    
+    var id: String
     var desc: String
     init(_ desc: String) {
-        let idx = Int.random(in: 1..<Node.arr.count)
-        id = Node.arr[idx]
-        Node.arr.remove(at: idx)
+        id = UUID().uuidString
         self.desc = desc
     }
     
@@ -38,9 +39,18 @@ class Node: Comparable{
     }
     
 }
-class Stack<T:Comparable> {
+
+class Stack<T:Comparable & Hashable> {
     var stack: [T] = []
-    var maxCapacity = -1
+    var maxCapacity = -1 {
+        didSet {
+            if stack.count < oldValue {
+                for _ in  0..<oldValue - stack.count {
+                    stack.removeLast()
+                }
+            }
+        }
+    }
     func push(_ element: T) throws {
         if(stack.count == maxCapacity) {
             throw CollectionErrors.emptyStack
@@ -69,7 +79,15 @@ class Stack<T:Comparable> {
 
 class Queue<T> {
     var queue: [T] = []
-    var maxCapacity = -1
+    var maxCapacity = -1 {
+        didSet {
+            if queue.count < oldValue {
+                for _ in  0..<oldValue - queue.count {
+                    queue.removeLast()
+                }
+            }
+        }
+    }
     func add(_ element: T) throws {
         if(queue.count == maxCapacity) {
             throw CollectionErrors.fullQueue
@@ -124,7 +142,14 @@ extension Stack {
     }
     
     func removeDuplicates() {
-        self.stack = NSOrderedSet(array: self.stack).map({ $0 as! T })
+        var found = Set<T>()
+        self.stack = self.stack.compactMap({
+            guard found.contains($0) else {
+                found.insert($0)
+                return $0
+            }
+            return nil
+        })
     }
 }
 
@@ -141,9 +166,21 @@ do {
     print(try stack.pop().getDesc())
     print(stack.isEmpty())
     try stack.insertAt(Node("ff"), 2)
-    try stack.removeAt(2)
+    try stack.push(Node("ff"))
     stack.sortStack()
+    print("\nAfter sorting but brfore removing duplicates")
+    print()
+    for elem in stack.stack {
+        print(elem.getDesc())
+    }
     stack.removeDuplicates()
+    print("*********************************************************************")
+    print()
+    print("After sorting and removing duplicates")
+    print()
+    for elem in stack.stack {
+        print(elem.getDesc())
+    }
 } catch CollectionErrors.emptyStack {
     print("The stack is empty")
 } catch CollectionErrors.fullStack {
@@ -152,6 +189,7 @@ do {
     print("Index not found")
 }
 
+print()
 print("Queue test: ")
 var queue = Queue<Node>()
 do {
