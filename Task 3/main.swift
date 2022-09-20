@@ -83,7 +83,7 @@ class Queue<T> {
         didSet {
             if queue.count > maxCapacity {
                 for _ in 0..<queue.count - maxCapacity {
-                    queue.removeLast()
+                    queue.removeFirs()
                 }
             }
         }
