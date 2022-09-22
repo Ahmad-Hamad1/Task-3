@@ -40,7 +40,7 @@ class Node: Comparable & Hashable {
     
 }
 
-class Stack<T: Comparable & Hashable> {
+class Stack<T> {
     var stack: [T] = []
     var maxCapacity = -1 {
         didSet {
@@ -133,7 +133,7 @@ extension Stack {
         self.stack.remove(at: idx)
     }
     
-    func sortStack() {
+    func sortStack() where T: Comparable {
         self.stack.sort(by: <)
     }
     
@@ -141,7 +141,7 @@ extension Stack {
         self.maxCapacity = newSize
     }
     
-    func removeDuplicates() {
+    func removeDuplicates() where T: Hashable {
         var found = Set<T>()
         self.stack = self.stack.compactMap({
             guard found.contains($0) else {
